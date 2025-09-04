@@ -22,14 +22,16 @@ func (s Sale) String() string {
 func selectSales(client int) ([]Sale, error) {
 	var sales []Sale
 
-	db, err := sql.Open("sqlite3", "demo.db")
+	db, err := sql.Open("sqlite", "demo.db")
 	if err != nil {
 		fmt.Println("Error opening database:", err)
+		return nil, err
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT product, volume, date FROM sales WHERE id = id", sql.Named("id", client))
+	rows, err := db.Query("SELECT product, volume, date FROM sales WHERE client = :client", sql.Named("client", client))
 	if err != nil {
 		fmt.Println("Error selecting sales:", err)
+		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -37,6 +39,7 @@ func selectSales(client int) ([]Sale, error) {
 		err = rows.Scan(&sale.Product, &sale.Volume, &sale.Date)
 		if err != nil {
 			fmt.Println("Error selecting sales:", err)
+			return nil, err
 		}
 		sales = append(sales, sale)
 	}
